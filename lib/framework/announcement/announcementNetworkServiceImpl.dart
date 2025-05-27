@@ -23,6 +23,15 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
     listAnnouncements = listAnnouncements.map<Announcement>((e) => Announcement.fromJson(e)).toList();
     return listAnnouncements;
   }
+
+  @override
+  Future<Announcement?> getAnnouncement(int id) async{
+    var url = '$baseUrl/announcements/${id}';
+    var response = await httpUtils.getData(url);
+    var data = jsonDecode(response);
+    var announcement = Announcement.fromJson(data);
+    return announcement;
+  }
 }
 
 void main() async {
@@ -30,12 +39,8 @@ void main() async {
     baseUrl: "http://127.0.0.1:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  var announcements = await service.getAnnouncements();
-  for(var announement in announcements){
-    print("---------------------------------------");
-    print("titre : ${announement.title}");
-    print("description : ${announement.description}");
-    print("categorie : ${announement.category?.name}");
-    print("Autheur : ${announement.created_by?.name}");
-  }
+  var announcement = await service.getAnnouncement(1);
+  print("titre : ${announcement?.title}");
+  print("description : ${announcement?.description}");
+  print("auteur : ${announcement?.created_by?.name}");
 }
