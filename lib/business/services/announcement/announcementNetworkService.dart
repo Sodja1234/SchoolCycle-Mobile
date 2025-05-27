@@ -2,4 +2,5 @@ import 'package:odc_mobile_template/business/models/announcement/announcement.da
 
 abstract class AnnouncementNetworkService {
   Future<List<Announcement>> getAnnouncements();
+  Future<Announcement?> getAnnouncement(int id);
 }
