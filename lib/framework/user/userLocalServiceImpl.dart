@@ -13,13 +13,13 @@ class UserLocalServiceImpl implements UserLocalService {
 
   @override
   Future<User?> recupererUser() async {
-    var data = await box?.readData("USER_KEY");
+    var data = await box?.readData("user");
     return data != null ? User.fromJson(jsonDecode(data)) : null;
   }
 
   @override
   Future<bool> sauvegarderUser(User user) async {
-    await box?.writeData("USER_KEY", jsonEncode(user.toJson()));
+    await box?.writeData("user", jsonEncode(user.toJson()));
     return true;
   }
 

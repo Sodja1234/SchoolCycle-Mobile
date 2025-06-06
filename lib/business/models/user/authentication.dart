@@ -1,19 +1,26 @@
-// create model class for authentication name and password with toJson and fromJson methods
+import 'package:meta/meta.dart';
+import 'dart:convert';
 
 class Authentication {
-  final String? name;
-  final String? password;
+  final String email;
+  final String password;
 
-  Authentication({this.name, this.password});
+  Authentication({
+    required this.email,
+    required this.password,
+  });
 
-  factory Authentication.fromJson(json) => Authentication(
-        name: json['name'],
-        password: json['password'],
-      );
+  factory Authentication.fromRawJson(String str) => Authentication.fromJson(json.decode(str));
 
-  Map toJson() => {
-        'name': name,
-        'password': password,
-      };
+  String toRawJson() => json.encode(toJson());
+
+  factory Authentication.fromJson(Map<String, dynamic> json) => Authentication(
+    email: json["email"],
+    password: json["password"],
+  );
+
+  Map<String, dynamic> toJson() => {
+    "email": email,
+    "password": password,
+  };
 }
-
