@@ -22,6 +22,39 @@ class Homectrl extends StateNotifier<Homestate> {
     }
   }
 
+  // Récupérer annonces filtrées par type d'opération
+  Future<void> getAnnouncementsfilter(String operationType) async {
+    state = state.copyWith(isLoading: true);
+    try {
+      var announcements = await announcementService.getAnnouncements(
+        operationTypes: [operationType],
+      );
+      switch (operationType) {
+        case 'sale':
+          state = state.copyWith(
+            salesAnnouncements: announcements,
+            isLoading: false,
+          );
+          break;
+        case 'don':
+          state = state.copyWith(
+            donationAnnouncements: announcements,
+            isLoading: false,
+          );
+          break;
+        case 'exchange':
+          state = state.copyWith(
+            exchangeAnnouncements: announcements,
+            isLoading: false,
+          );
+          break;
+        default:
+          state = state.copyWith(errorMessage: "Une erreur est survenue");
+      }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+    }
+  }
 }
 
 final homeCtrlProvider = StateNotifierProvider<Homectrl, Homestate>((ref) {
