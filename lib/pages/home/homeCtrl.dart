@@ -7,7 +7,15 @@ class Homectrl extends StateNotifier<Homestate> {
   var announcementService = getIt<AnnouncementNetworkService>();
 
   Homectrl() : super(Homestate()) {
-    getAnnouncements();
+    loadAnnouncements();
+  }
+
+  // Méthode pour charger toutes les sections au démarrage
+  Future<void> loadAnnouncements() async {
+    await getAnnouncements();
+    await getAnnouncementsfilter('sale');
+    await getAnnouncementsfilter("exchange");
+    await getAnnouncementsfilter("don");
   }
 
   Future<void> getAnnouncements() async {
