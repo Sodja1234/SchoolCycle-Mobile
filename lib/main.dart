@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
 import 'package:odc_mobile_template/business/services/user/userNetworkService.dart';
+import 'package:odc_mobile_template/framework/announcement/announcementNetworkServiceImpl.dart';
 import 'package:odc_mobile_template/framework/utils/localStorage/getStorageImpl.dart';
 import 'package:odc_mobile_template/utils/navigationUtils.dart';
 import 'business/services/gestion/gestionLocalService.dart';
@@ -29,6 +31,7 @@ void configureImplementations() {
   getIt.registerLazySingleton<GestionLocalService>(() => GestionLocalServiceImpl());
   getIt.registerLazySingleton<UserNetworkService>(() => UserNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
   getIt.registerLazySingleton<UserLocalService>(() => UserLocalServiceImpl(box: localManager));
+  getIt.registerLazySingleton<AnnouncementNetworkService>(() => AnnouncementNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
 }
 
 void main() async {
