@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odc_mobile_template/business/models/user/registerUser.dart';
 import 'package:odc_mobile_template/pages/auth/register/registerCtrl.dart';
 import 'package:odc_mobile_template/pages/auth/register/registerState.dart';
+import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
+
+import '../../../main.dart';
+import '../../../utils/navigationUtils.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -14,6 +18,8 @@ class RegisterPage extends ConsumerStatefulWidget {
 class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final NavigationUtils navigation = getIt.get<NavigationUtils>();
+
   // Contrôles de visibilité des mots de passe
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -24,9 +30,25 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final TextEditingController _passwordCtrl = TextEditingController();
   final TextEditingController _confirmPasswordCtrl = TextEditingController();
 
+  // ✅ Nettoie les messages quand on quitte la page
+  @override
+  void dispose() {
+    // Nettoie les messages avant de quitter la page
+    ref.read(RegisterCtrlProvider.notifier).resetMessages();
+
+    // Nettoie les contrôleurs
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _confirmPasswordCtrl.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final registerState = ref.watch(RegisterCtrlProvider);
+    final isSubmited = registerState.isSubmited;
 
     return Material(
       color: Colors.grey[100],
@@ -76,6 +98,77 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     child: Column(
                       children: [
+                        // Affiche un message d'erreur si présent dans l'état
+                        if (registerState.errorMessage != null)
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.red[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red[300]!),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.red),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    registerState.errorMessage!,
+                                    style: TextStyle(color: Colors.red[700]),
+                                  ),
+                                ),
+                                // Bouton pour fermer le message d'erreur
+                                IconButton(
+                                  icon: Icon(Icons.close, size: 16),
+                                  onPressed: () {
+                                    // Appel du contrôleur pour réinitialiser les messages
+                                    ref.read(RegisterCtrlProvider.notifier).resetMessages();
+                                  },
+                                  color: Colors.red[300],
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // Affiche un message de succès si présent dans l'état
+                        if (registerState.successMessage != null)
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(12),
+                            margin: EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green[300]!),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_circle_outline, color: Colors.green),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    registerState.successMessage!,
+                                    style: TextStyle(color: Colors.green[700]),
+                                  ),
+                                ),
+                                // Bouton pour fermer le message de succès
+                                IconButton(
+                                  icon: Icon(Icons.close, size: 16),
+                                  onPressed: () {
+                                    ref.read(RegisterCtrlProvider.notifier).resetMessages();
+                                  },
+                                  color: Colors.green[300],
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          ),
+
                         // === Nom et Email ===
                         Row(
                           children: [
@@ -190,10 +283,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: registerState.isSubmited == false
+                            onPressed: registerState.isSubmited == true
                                 ? null
-                                : () {
+                                : () async {
                               FocusScope.of(context).unfocus();
+
                               if (_formKey.currentState!.validate()) {
                                 final newUser = RegisterUser(
                                   name: _nameCtrl.text.trim(),
@@ -202,7 +296,15 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                                   passwordConfirmation: _confirmPasswordCtrl.text,
                                 );
 
-                                ref.read(RegisterCtrlProvider.notifier).register(newUser);
+                                // ✅ On attend que le register se termine
+                                final result = await ref.read(RegisterCtrlProvider.notifier).register(newUser);
+
+                                // ✅ Si l'inscription est un succès, on redirige
+                                if (result == true) {
+                                  Future.delayed(Duration(seconds: 2), (){
+                                    navigation.replace('/public/auth/verifyOtp');
+                                  });
+                                }
                               }
                             },
                             style: ElevatedButton.styleFrom(
@@ -226,20 +328,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                         const SizedBox(height: 16),
 
-                        // === Message de succès / erreur ===
-                        if (registerState.successMessage != null)
-                          Text(
-                            registerState.successMessage!,
-                            style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
-                          ),
-                        if (registerState.errorMessage != null)
-                          Text(
-                            registerState.errorMessage!,
-                            style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                          ),
-
-                        const SizedBox(height: 16),
-
                         // === Lien vers Connexion ===
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -247,7 +335,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                             const Text('Déjà un compte ? '),
                             GestureDetector(
                               onTap: () {
-                                // TODO: Navigation vers page de connexion
+                                // ✅ Nettoie les messages avant de naviguer
+                                ref.read(RegisterCtrlProvider.notifier).resetMessages();
+                                navigation.replace('/public/auth/loginPage');
                               },
                               child: Text(
                                 'Connectez-vous',

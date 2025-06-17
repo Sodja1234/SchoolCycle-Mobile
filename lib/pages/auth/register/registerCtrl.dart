@@ -16,7 +16,7 @@ class RegisterCtrl extends StateNotifier<RegisterState>{
 
   RegisterCtrl() : super(RegisterState());
   
-  Future<void> register(RegisterUser registerUser) async {
+  Future<bool> register(RegisterUser registerUser) async {
     state = state.copyWith(
       isSubmited: true,
       successMessage: null,
@@ -28,24 +28,48 @@ class RegisterCtrl extends StateNotifier<RegisterState>{
       state = state.copyWith(
         isSubmited: false,
         successMessage: "Inscription réussie !",
+        email: registerUser.email,
       );
+      durationToast();
+      return true;
     }on HttpRequestException catch (e) {
       state = state.copyWith(
         isSubmited: false,
-        errorMessage: "${e.body}",
+        errorMessage: "${e.body.toString()}",
       );
       print('error : ${e.body}');
+      durationToast();
+      return false;
     }on TimeoutException catch (_) {
       state = state.copyWith(
         isSubmited : false,
         errorMessage: "Temps d'attente dépassé. Le serveur ne répond pas.",
       );
+      durationToast();
+      return false;
     } catch (e) {
       state = state.copyWith(
         isSubmited: false,
         errorMessage: "Erreur serveur : $e",
       );
+      durationToast();
+      return false;
     }
+  }
+
+  // Méthode resetMessages
+  void resetMessages() {
+    state = state.copyWith(
+      errorMessage: null,
+      successMessage: null,
+      isSubmited: false,
+    );
+  }
+
+  void durationToast(){
+    Future.delayed(Duration(seconds: 3),(){
+      resetMessages();
+    });
   }
 
 }
