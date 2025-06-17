@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // Import du modèle Authentication contenant email et mot de passe
 import 'package:odc_mobile_template/business/models/user/authentication.dart';
+import 'package:odc_mobile_template/main.dart';
 // Import du contrôleur de connexion (loginCtrl)
 import 'package:odc_mobile_template/pages/auth/login/loginCtrl.dart';
 // Import de la page d'accueil pour la redirection après connexion
 import 'package:odc_mobile_template/pages/home/homePage.dart';
+import 'package:odc_mobile_template/utils/navigationUtils.dart';
 
 // Widget Stateful avec accès au Provider Riverpod via ConsumerStatefulWidget
 class LoginPage extends ConsumerStatefulWidget {
@@ -35,6 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     // On écoute l'état du Login via le provider
     final loginState = ref.watch(LoginCtrlProvider);
     final isLoading = loginState.isLoading;
+    var navigation = getIt.get<NavigationUtils>();
 
     // Si l'utilisateur est connecté et un message de succès existe,
     // on redirige automatiquement vers la HomePage
@@ -318,7 +321,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             Text('Pas encore de compte ? '),
                             GestureDetector(
                               onTap: () {
-                                // TODO : Ajouter navigation vers la page d'inscription
+                                navigation.replace('/public/auth/registerPage');
                               },
                               child: Text(
                                 'Inscrivez-vous',

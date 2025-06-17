@@ -6,7 +6,8 @@ import 'package:odc_mobile_template/business/models/user/authentication.dart'; /
 import 'package:odc_mobile_template/business/services/user/userLocalService.dart'; // Service pour stocker/récupérer l'utilisateur en local
 import 'package:odc_mobile_template/business/services/user/userNetworkService.dart'; // Service pour les appels réseau liés à l'utilisateur
 import 'package:odc_mobile_template/main.dart'; // Contient probablement l'instance de getIt (injection de dépendances)
-import 'package:odc_mobile_template/pages/auth/login/loginState.dart'; // Fichier contenant l'état du login
+import 'package:odc_mobile_template/pages/auth/login/loginState.dart';
+import 'package:odc_mobile_template/utils/http/HttpRequestException.dart'; // Fichier contenant l'état du login
 
 // Contrôleur de connexion, qui étend StateNotifier pour gérer l'état du login
 class LoginCtrl extends StateNotifier<LoginState> {
@@ -33,6 +34,7 @@ class LoginCtrl extends StateNotifier<LoginState> {
         isLoading: false,
         errorMessage: "Veuillez remplir tous les champs.",
       );
+      durationToast();
       return false; // Annulation du processus
     }
 
@@ -52,6 +54,7 @@ class LoginCtrl extends StateNotifier<LoginState> {
           user: user,
           successMessage: "Connexion réussie !",
         );
+        durationToast();
         return res; // Retourne true si la sauvegarde a fonctionné
       } else {
         // Si les identifiants sont incorrects
@@ -59,21 +62,31 @@ class LoginCtrl extends StateNotifier<LoginState> {
           isLoading: false,
           errorMessage: "Identifiants incorrects.",
         );
+        durationToast();
         return false;
       }
-    } on TimeoutException catch (_) {
+    }on HttpRequestException catch(e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '"${e.body}"',
+      );
+      durationToast();
+      return false;
+    }on TimeoutException catch (_) {
       // Gestion du cas où le serveur prend trop de temps à répondre
       state = state.copyWith(
         isLoading: false,
         errorMessage: "Temps d'attente dépassé. Le serveur ne répond pas.",
       );
+      durationToast();
       return false;
     } catch (e) {
       // Gestion des autres erreurs
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "Erreur serveur : ${e.toString()}",
+        errorMessage: "${e}",
       );
+      durationToast();
       return false;
     }
 
@@ -92,6 +105,13 @@ class LoginCtrl extends StateNotifier<LoginState> {
       successMessage: null,
     );
   }
+
+  durationToast(){
+    Future.delayed(Duration(seconds: 3),(){
+      resetMessages();
+    });
+  }
+
 }
 
 // Déclaration du Provider Riverpod pour le LoginCtrl
