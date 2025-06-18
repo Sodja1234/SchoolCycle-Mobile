@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odc_mobile_template/pages/auth/login/loginPage.dart';
+import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
+import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
 import 'pages/intro/introPage.dart';
@@ -33,6 +36,27 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         return IntroPage();
       },
     ),
+
+    //route login
+    GoRoute(
+        path: "/public/auth/loginPage",
+        name: "login_page",
+        builder: (ctx, state){
+          return LoginPage();
+        }),
+    GoRoute(
+        path: "/public/auth/registerPage",
+        name: "register_page",
+        builder: (ctx, state){
+          return RegisterPage();
+        }),
+    //route verifyOtp
+    GoRoute(
+        path: "/public/auth/verifyOtp",
+        name: "verify_otp_page",
+        builder: (ctx, state){
+          return VerifyOtpPage();
+        }),
   ];
 
   /*
