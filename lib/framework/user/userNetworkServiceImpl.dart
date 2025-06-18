@@ -2,6 +2,7 @@
 import 'dart:convert';
 
 import 'package:odc_mobile_template/business/models/user/registerUser.dart';
+import 'package:odc_mobile_template/business/models/user/verifyOtp.dart';
 
 import '../../business/models/user/authentication.dart';
 
@@ -43,34 +44,53 @@ class UserNetworkServiceImpl extends UserNetworkService {
 
   @override
   Future<void> registerUser(RegisterUser registerUser) async{
-   //try{
-     var url = '$baseUrl/register';
+     var url = '$baseUrl/register/';
      var body = registerUser.toJson();
-     var response = await httpUtils.postData(url , body: body, headers: {'X-Device': 'mobile'});
+     var response = await httpUtils.postData(url , body: body);
      print(response);
      return ;
   }
+
+  @override
+  Future<void> verifyOtp(VerifyOtp verifyOtp) async {
+    var url = '$baseUrl/verify-otp';
+    var body = verifyOtp.toJson();
+    var response = await httpUtils.postData(url, body : body);
+    print(response);
+    return ;
+  }
+
+  @override
+  Future<void> resendOtp(VerifyOtp resendOtp)async {
+    var url = '$baseUrl/resend-otp';
+    var body = resendOtp.toJson();
+    var response = await httpUtils.postData(url, body: body);
+    print(response);
+    return;
+  }
+
 }
-
-
 
 void main() async {
   //test register
   var service = UserNetworkServiceImpl(
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: "http://10.20.20.140:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  var register = RegisterUser(
-      name: 'test2',
-      email: 'gigitest222@gmail.com',
-      password: '667667667',
-      passwordConfirmation: '667667667',
-      role: 'tutor'
-  );
-
   try{
-    await service.registerUser(register);
+    var data=RegisterUser(name: "name", email: "email@gmail.com", password: "assword", passwordConfirmation: "password");
+    var r=await service.registerUser(data);
+
+  }catch(e, s){
+    print(e);
+    print(s);
+  }
+  /*var user = VerifyOtp(email: 'legigiiibabyyy@gmail.com');
+  try{
+    await service.resendOtp(user);
+  }on HttpRequestException catch(e){
+    print('errueur : ${e.body}');
   }catch(e){
     print('erreur : $e');
-  }
+  }*/
 }
