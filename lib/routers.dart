@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:odc_mobile_template/pages/auth/login/loginPage.dart';
 import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
 import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
+import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementPage.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
 import 'pages/intro/introPage.dart';
@@ -57,6 +59,19 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         builder: (ctx, state){
           return VerifyOtpPage();
         }),
+      // route detail announcement
+    GoRoute(
+      path: "/public/detail_announcement/:announcementId",
+      name: 'detail_announcement',
+      pageBuilder: (ctx, state) {
+        final announcementId = int.parse(
+          state.pathParameters["announcementId"]!,
+        );
+        return MaterialPage(
+          child: DetailAnnouncementPage(announcementId: announcementId),
+        );
+      },
+    ),
   ];
 
   /*

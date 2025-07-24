@@ -279,7 +279,7 @@ class HomeWidgets {
     // Supprimer /api et le remplacer par /storage/
     var imageUrl = baseUrl.endsWith("/api") ? baseUrl.replaceFirst("/api", "/storage/") : baseUrl;
     // recuperer la première image
-    String? imagePath = announcement.photos?.first['url'];
+    String? imagePath = announcement.photos?.first.url;
     String fullImageUrl = imagePath != null ? "$imageUrl$imagePath" : "";
     return GestureDetector(
       onTap: onTap,
@@ -415,8 +415,8 @@ class HomeWidgets {
                   children: [
                     Text(
                       announcement.title != null
-                          ? (announcement.title!.length > 17
-                              ? '${announcement.title!.substring(0, 15)}...'
+                          ? (announcement.title!.length > 30
+                              ? '${announcement.title!.substring(0, 18)}...'
                               : announcement.title!)
                           : "Titre indisponible",
                       style: TextStyle(

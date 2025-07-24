@@ -1,4 +1,5 @@
 import 'package:odc_mobile_template/business/models/category/category.dart';
+import 'package:odc_mobile_template/business/models/photo/photo.dart';
 import 'package:odc_mobile_template/business/models/user/user.dart';
 
 class Announcement {
@@ -13,8 +14,9 @@ class Announcement {
   final double? exchangeLocationLng;
   final double? exchangeLocationLat;
   final Category? category;
-  final List<dynamic>? photos;
+  final List<Photo>? photos;
   final User? created_by;
+  final String? created_at;
 
   Announcement({
     required this.id,
@@ -30,6 +32,7 @@ class Announcement {
     this.category,
     this.photos,
     this.created_by,
+    this.created_at,
   });
 
   factory Announcement.fromJson(json) => Announcement(
@@ -44,10 +47,15 @@ class Announcement {
     exchangeLocationLng: json['exchangeLocationLng'],
     exchangeLocationLat: json['exchangeLocationLat'],
     category: json['category'] != null ? Category.fromJson(json['category'] as Map<String, dynamic>) : null,
-    photos: json['photos'],
+    photos: json['photos'] != null
+        ? (json['photos'] as List)
+            .map((photo) => Photo.fromJson(photo as Map<String, dynamic>))
+            .toList()
+        : [],
     created_by: json['created_by'] != null
         ? User.fromJson(json['created_by'] as Map<String, dynamic>)
         : null,
+    created_at: json['created_at'],
   );
 
   Map toJson() => {
@@ -64,5 +72,6 @@ class Announcement {
     'category': category,
     'photos': photos,
     'created_by': created_by,
+    'created_at' : created_at
   };
 }
