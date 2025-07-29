@@ -44,6 +44,49 @@ class GeolocationServiceImpl implements GeolocationService {
     }
   }
 
+  @override
+  Future<Geolocation> getCurrentLocation() async{
+    try {
+      // Vérification des services de localisation
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw Exception('Les services de localisation sont désactivés');
+      }
+
+      // Vérification des permissions
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw Exception('Permission de localisation refusée');
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw Exception('Permission de localisation refusée définitivement');
+      }
+
+      // Récupération de la position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Conversion en adresse
+      final address = await getAddressFromCoordinates(
+        position.latitude, 
+        position.longitude
+      );
+
+      return Geolocation(
+        address: address,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+    } catch (e) {
+      print('Erreur getCurrentLocation: $e');
+      rethrow;
+    }
+  }
 
 
   @override
