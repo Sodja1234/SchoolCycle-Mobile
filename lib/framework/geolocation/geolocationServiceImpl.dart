@@ -44,5 +44,42 @@ class GeolocationServiceImpl implements GeolocationService {
     }
   }
 
-  
+
+
+  @override
+  Future<Geolocation> searchAddress(String query) async{
+    if (query.trim().isEmpty) {
+      throw Exception('La requête de recherche est vide');
+    }
+
+    try {
+      final url = 'https://nominatim.openstreetmap.org/search?format=json&q=${Uri.encodeComponent(query)}&limit=1';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> results = json.decode(response.body);
+        if (results.isEmpty) {
+          throw Exception('Aucun résultat trouvé pour cette adresse');
+        }
+
+        final result = results[0];
+        final lat = double.parse(result['lat']);
+        final lon = double.parse(result['lon']);
+        
+        // Récupération de l'adresse complète
+        final address = await getAddressFromCoordinates(lat, lon);
+
+        return Geolocation(
+          address: address,
+          latitude: lat,
+          longitude: lon,
+        );
+      } else {
+        throw Exception('Erreur de recherche d\'adresse: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur searchAddress: $e');
+      rethrow;
+    }
+  }
 }
