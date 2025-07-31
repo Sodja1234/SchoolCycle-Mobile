@@ -90,6 +90,13 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         return CreateAnnouncementPage();
       },
     ),
+    GoRoute(
+      path: '/public/announcementList',
+      name: 'announcement_list',
+      builder: (ctx, state) {
+        return AnnouncementListPage();
+      },
+    ),
   ];
 
   /*
