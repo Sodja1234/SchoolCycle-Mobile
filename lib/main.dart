@@ -37,6 +37,7 @@ void configureImplementations() {
   getIt.registerLazySingleton<UserLocalService>(() => UserLocalServiceImpl(box: localManager));
   getIt.registerLazySingleton<AnnouncementNetworkService>(() => AnnouncementNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
   getIt.registerLazySingleton<CategoryNetworkService>(() => CategoryNetworkServiceImp(baseUrl: baseUrl, httpUtils: httpUtils));
+  getIt.registerLazySingleton<GeolocationService>(() => GeolocationServiceImpl());
 }
 
 void main() async {
