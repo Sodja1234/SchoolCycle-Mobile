@@ -4,8 +4,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
+import 'package:odc_mobile_template/business/services/category/categoryNetworkService.dart';
+import 'package:odc_mobile_template/business/services/geolocation/geolocationService.dart';
 import 'package:odc_mobile_template/business/services/user/userNetworkService.dart';
 import 'package:odc_mobile_template/framework/announcement/announcementNetworkServiceImpl.dart';
+import 'package:odc_mobile_template/framework/category/categoryNetworkServiceImp.dart';
+import 'package:odc_mobile_template/framework/geolocation/geolocationServiceImpl.dart';
 import 'package:odc_mobile_template/framework/utils/localStorage/getStorageImpl.dart';
 import 'package:odc_mobile_template/utils/navigationUtils.dart';
 import 'business/services/gestion/gestionLocalService.dart';
@@ -32,6 +36,7 @@ void configureImplementations() {
   getIt.registerLazySingleton<UserNetworkService>(() => UserNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
   getIt.registerLazySingleton<UserLocalService>(() => UserLocalServiceImpl(box: localManager));
   getIt.registerLazySingleton<AnnouncementNetworkService>(() => AnnouncementNetworkServiceImpl(baseUrl: baseUrl, httpUtils: httpUtils));
+  getIt.registerLazySingleton<CategoryNetworkService>(() => CategoryNetworkServiceImp(baseUrl: baseUrl, httpUtils: httpUtils));
 }
 
 void main() async {
