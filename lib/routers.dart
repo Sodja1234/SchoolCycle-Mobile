@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odc_mobile_template/pages/annnouncementList/announcementListPage.dart';
 import 'package:odc_mobile_template/pages/auth/login/loginPage.dart';
 import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
 import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
 import 'package:odc_mobile_template/pages/createAnnouncement/createAnnouncementPage.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementPage.dart';
+import 'package:odc_mobile_template/pages/widgets/mainLayout.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
 import 'pages/intro/introPage.dart';
@@ -23,7 +25,11 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       path: "/app/home",
       name: 'home_page',
       builder: (ctx, state) {
-        return HomePage();
+        return Consumer(
+          builder: (context, ref, _) {
+            return const MainLayout();
+          },
+        );
       },
     ),
   ];
