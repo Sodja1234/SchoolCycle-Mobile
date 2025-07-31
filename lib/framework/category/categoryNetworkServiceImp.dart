@@ -18,6 +18,10 @@ class CategoryNetworkServiceImp implements CategoryNetworkService{
     var url = '$baseUrl/categories';
     var response = await httpUtils.getData(url);
     var data = jsonDecode(response);
+    if (data is Map && data.containsKey('data')) {
+      final dataList = data['data'] as List;
+      return dataList.map<Category>((e) => Category.fromJson(e)).toList();
+    }
     var categories = data.map<Category>((e)=>Category.fromJson(e)).toList();
     return categories;
   }
