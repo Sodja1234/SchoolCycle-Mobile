@@ -1,9 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
+import 'package:odc_mobile_template/business/models/announcement/createAnnouncement.dart';
+import 'package:odc_mobile_template/business/models/user/authentication.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
+import 'package:odc_mobile_template/framework/user/userNetworkServiceImpl.dart';
 import 'package:odc_mobile_template/framework/utils/http/localHttpUtils.dart';
 import 'package:odc_mobile_template/utils/http/HttpUtils.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
   final String baseUrl;
@@ -16,42 +23,42 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
 
   @override
   Future<List<Announcement>> getAnnouncements({
-    List<String>? operationTypes, // Liste des types d'opérations (ex: don, echange, vente) en filtre optionnel
-    double? price, // Prix maximum pour filtrer les annonces (optionnel)
-    List<String>? states, // Liste des états (state) pour filtrer les annonces (optionnel)
+    List<String>? operationTypes,
+    double? price,
+    List<String>? states,
+    List<String>? categories,
+    int page = 1,
   }) async {
-    var queryParams = <String, String>{};  // // Initialisation d'un map pour stocker les paramètres de la requête
+    var queryParams = <String, String>{'page': page.toString()};
 
-
-    // // Si la liste des types d'opérations n'est pas vide, on la transforme en chaîne séparée par des virgules
     if (operationTypes != null && operationTypes.isNotEmpty) {
       queryParams['operation_type'] = operationTypes.join(',');
     }
 
-
-    // Si un prix max est défini, on l'ajoute dans les paramètres sous forme de chaîne
     if (price != null) {
       queryParams['price'] = price.toString();
     }
 
 
-    // Si la liste des états n'est pas vide, on la transforme aussi en chaîne séparée par des virgules
     if (states != null && states.isNotEmpty) {
       queryParams['state'] = states.join(',');
     }
 
-    var url = Uri.parse("${baseUrl}").replace(
-      path: 'api/announcements',
-      queryParameters: queryParams // Paramètres GET encodés dans l'URL
-    );
+    if (categories != null && categories.isNotEmpty) {
+      queryParams['category'] = categories.join(',');
+    }
+
+    var url = Uri.parse(
+      "${baseUrl}",
+    ).replace(path: 'api/announcements', queryParameters: queryParams);
+
     var response = await httpUtils.getData(url.toString());
     var listData = jsonDecode(response);
     var listAnnouncements = listData['data'];
-    listAnnouncements =
-        listAnnouncements
-            .map<Announcement>((e) => Announcement.fromJson(e))
-            .toList();
-    return listAnnouncements;
+
+    return listAnnouncements
+        .map<Announcement>((e) => Announcement.fromJson(e))
+        .toList();
   }
 
   @override
@@ -66,15 +73,7 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
 
 void main() async {
   var service = AnnouncementNetworkServiceImpl(
-    baseUrl: "http://127.0.0.1:8000/api",
+    baseUrl: "http://localhost:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  var announcements = await service.getAnnouncements();
-  for(var announcement in announcements){
-    print("---------------------------");
-    print(announcement.title);
-    print(announcement.operation_type);
-    print(announcement.price);
-    print("-----Fin-------------");
-  }
 }
