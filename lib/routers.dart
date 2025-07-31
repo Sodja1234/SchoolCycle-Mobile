@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:odc_mobile_template/pages/annnouncementList/announcementListPage.dart';
 import 'package:odc_mobile_template/pages/auth/login/loginPage.dart';
 import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
 import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
+import 'package:odc_mobile_template/pages/createAnnouncement/createAnnouncementPage.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementPage.dart';
+import 'package:odc_mobile_template/pages/widgets/mainLayout.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
 import 'pages/intro/introPage.dart';
@@ -22,7 +25,11 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       path: "/app/home",
       name: 'home_page',
       builder: (ctx, state) {
-        return HomePage();
+        return Consumer(
+          builder: (context, ref, _) {
+            return const MainLayout();
+          },
+        );
       },
     ),
   ];
@@ -41,25 +48,28 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
 
     //route login
     GoRoute(
-        path: "/public/auth/loginPage",
-        name: "login_page",
-        builder: (ctx, state){
-          return LoginPage();
-        }),
+      path: "/public/auth/loginPage",
+      name: "login_page",
+      builder: (ctx, state) {
+        return LoginPage();
+      },
+    ),
     GoRoute(
-        path: "/public/auth/registerPage",
-        name: "register_page",
-        builder: (ctx, state){
-          return RegisterPage();
-        }),
+      path: "/public/auth/registerPage",
+      name: "register_page",
+      builder: (ctx, state) {
+        return RegisterPage();
+      },
+    ),
     //route verifyOtp
     GoRoute(
-        path: "/public/auth/verifyOtp",
-        name: "verify_otp_page",
-        builder: (ctx, state){
-          return VerifyOtpPage();
-        }),
-      // route detail announcement
+      path: "/public/auth/verifyOtp",
+      name: "verify_otp_page",
+      builder: (ctx, state) {
+        return VerifyOtpPage();
+      },
+    ),
+    // route detail announcement
     GoRoute(
       path: "/public/detail_announcement/:announcementId",
       name: 'detail_announcement',
@@ -70,6 +80,14 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         return MaterialPage(
           child: DetailAnnouncementPage(announcementId: announcementId),
         );
+      },
+    ),
+    // route pour créer une nouvelle annonce
+    GoRoute(
+      path: '/public/create_announcement',
+      name: 'create_announcement',
+      builder: (ctx, state) {
+        return CreateAnnouncementPage();
       },
     ),
   ];

@@ -5,4 +5,5 @@ abstract class AnnouncementNetworkService {
   Future<List<Announcement>> getAnnouncements({List<String>? operationTypes,double? price,List<String>? states,List<String>? categories});
   Future<Announcement?> getAnnouncement(int id);
   Future<bool> createAnnouncement(CreateAnnouncement announcement,String? token);
+  Future<List<Announcement>> getAnnouncementByUser(String token);
 }
