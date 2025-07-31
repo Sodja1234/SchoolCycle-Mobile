@@ -438,11 +438,16 @@ class HomeWidgets {
                         SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            "Rue de l'école",
+                            announcement.exchange_location_address != null
+                                ? (announcement.exchange_location_address!.length > 30
+                                    ? '${announcement.exchange_location_address!.substring(0, 29)}...'
+                                    : announcement.exchange_location_address!)
+                                : "Emplacement inconnu",
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 12,
+                              fontSize: 16,
                               fontWeight: FontWeight.w500,
+                              height: 1.5,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),

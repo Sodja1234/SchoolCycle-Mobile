@@ -10,9 +10,10 @@ class Announcement {
   final int? price;
   final bool? isComplete;
   final bool? isCanceled;
-  final String? exchangeLocationAddress;
-  final double? exchangeLocationLng;
-  final double? exchangeLocationLat;
+  final String? exchange_location_address;
+  final String? exchange_location_lng;
+  final String? exchange_location_lat;
+  final String? state;
   final Category? category;
   final List<Photo>? photos;
   final User? created_by;
@@ -26,9 +27,10 @@ class Announcement {
     this.price,
     this.isComplete,
     this.isCanceled,
-    this.exchangeLocationAddress,
-    this.exchangeLocationLng,
-    this.exchangeLocationLat,
+    this.state,
+    this.exchange_location_address,
+    this.exchange_location_lng,
+    this.exchange_location_lat,
     this.category,
     this.photos,
     this.created_by,
@@ -41,11 +43,12 @@ class Announcement {
     description: json['description'],
     operation_type: json['operation_type'],
     price: json['price'],
+    state: json['state'],
     isComplete: json['isComplete'],
     isCanceled: json['isCanceled'],
-    exchangeLocationAddress: json['exchangeLocationAddress'],
-    exchangeLocationLng: json['exchangeLocationLng'],
-    exchangeLocationLat: json['exchangeLocationLat'],
+    exchange_location_address: json['exchange_location_address'],
+    exchange_location_lng: json['exchange_location_lng'],
+    exchange_location_lat: json['exchange_location_lat'],
     category: json['category'] != null ? Category.fromJson(json['category'] as Map<String, dynamic>) : null,
     photos: json['photos'] != null
         ? (json['photos'] as List)
@@ -65,10 +68,11 @@ class Announcement {
     'operation_type': operation_type,
     'price': price,
     'isComplete': isComplete,
+    'state': state,
     'isCanceled': isCanceled,
-    'exchangeLocationAddress': exchangeLocationAddress,
-    'exchangeLocationLng': exchangeLocationLng,
-    'exchangeLocationLat': exchangeLocationLat,
+    'exchange_location_address': exchange_location_address,
+    'exchange_location_lng': exchange_location_lng,
+    'exchange_location_lat': exchange_location_lat,
     'category': category,
     'photos': photos,
     'created_by': created_by,

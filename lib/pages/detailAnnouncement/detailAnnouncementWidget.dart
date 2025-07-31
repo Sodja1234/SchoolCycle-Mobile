@@ -339,12 +339,22 @@ class DetailAnnouncementWidget {
           SizedBox(height: 20,),
 
           Row(
-            children: [
-              Icon(Icons.location_on_outlined,color: Colors.grey[600],),
-              Text("${announcement.exchangeLocationAddress}",style: TextStyle(fontSize: 16,
-              color: Colors.grey[600],
-              height: 1.5,),
-              )
+            children:[
+              Icon(Icons.location_on_outlined, color: Colors.grey[600]),
+              SizedBox(width: 8),
+              Expanded(
+                // Prend tout l'espace disponible
+                child: Text(
+                  "${announcement.exchange_location_address}",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[600],
+                    height: 1.5,
+                  ),
+                  softWrap: true, // Retour à la ligne
+                  maxLines: 3, // Limite optionnelle
+                ),
+              ),
             ],
           ),
 
