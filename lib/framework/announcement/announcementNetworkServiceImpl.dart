@@ -145,6 +145,19 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
     }
   }
 
+  @override
+  Future<List<Announcement>> getAnnouncementByUser(String token) async{
+    var url = '$baseUrl/announcements/user';
+    print(url);
+    var response = await httpUtils.getData(url,token: token);
+    var listData = jsonDecode(response);
+    var listAnnouncements = listData['data'];
+
+    return listAnnouncements
+        .map<Announcement>((e) => Announcement.fromJson(e))
+        .toList();
+  }
+
 }
 
 void main() async {
@@ -152,4 +165,16 @@ void main() async {
     baseUrl: "http://localhost:8000/api",
     httpUtils: LocalHttpUtils(),
   );
+  try{
+    var auth = Authentication(email: "abc@gmail.com", password: "azertyuiop");
+    var user = await UserNetworkServiceImpl(baseUrl: "http://localhost:8000/api", httpUtils: LocalHttpUtils()).seConnecter(auth);
+    print(user?.token);
+    var announcements = await service.getAnnouncementByUser(user!.token!);
+    print("Les annonces de l'utilisateur : ${announcements}");
+  }on HttpClientRequest catch(e){
+    print("erreur : ${e.toString()}");
+  } catch(e){
+    print(e);
+  }
+
 }
