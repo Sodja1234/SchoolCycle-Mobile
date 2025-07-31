@@ -39,18 +39,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final isLoading = loginState.isLoading;
     var navigation = getIt.get<NavigationUtils>();
 
-    // Si l'utilisateur est connecté et un message de succès existe,
-    // on redirige automatiquement vers la HomePage
-    if (loginState.user != null && loginState.successMessage != null) {
-      // Utilisation de Future.delayed(Duration.zero) pour éviter un conflit
-      // avec le cycle de build actuel de Flutter
-      Future.delayed(Duration.zero, () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
-      });
-    }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -288,7 +276,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 );
 
                                 // Appel asynchrone à la méthode login
-                                await ctrl.loginForm(data);
+                                // Appel asynchrone à la méthode login
+                                final result = await ctrl.loginForm(
+                                  data,
+                                );                                
+                                if (result) {
+                                  Future.delayed(
+                                    Duration(seconds: 3),
+                                    () {
+                                      navigation.replace("/app/home");
+                                    },
+                                  );
+                                }
+
                                 // Les messages d'erreur ou succès sont gérés via l'état
                               }
                             },
