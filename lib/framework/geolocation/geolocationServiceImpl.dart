@@ -1,8 +1,9 @@
 import 'dart:convert';
-
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 import 'package:odc_mobile_template/business/models/geolocation/geolocation.dart';
 import 'package:odc_mobile_template/business/services/geolocation/geolocationService.dart';
 
@@ -123,6 +124,31 @@ class GeolocationServiceImpl implements GeolocationService {
     } catch (e) {
       print('Erreur searchAddress: $e');
       rethrow;
+    }
+  }
+
+  @override
+  Future<LatLng?> geocodeAddress(String address) async{
+    if (address.isEmpty) return null;
+
+    try {
+      final url = 'https://nominatim.openstreetmap.org/search?format=json&q=${Uri.encodeComponent(address)}&limit=1';
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> results = json.decode(response.body);
+        if (results.isNotEmpty) {
+          final result = results[0];
+          return LatLng(
+            double.parse(result['lat']),
+            double.parse(result['lon']),
+          );
+        }
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Erreur de géocodage: $e');
+      return null;
     }
   }
 }

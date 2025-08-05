@@ -6,6 +6,7 @@ import 'package:odc_mobile_template/pages/auth/login/loginCtrl.dart';
 import 'package:odc_mobile_template/pages/home/homePage.dart';
 import 'package:odc_mobile_template/pages/home/homeWidget.dart';
 import 'package:odc_mobile_template/pages/messages/messagePage.dart';
+import 'package:odc_mobile_template/pages/search/searchPage.dart';
 import 'package:odc_mobile_template/utils/navigationUtils.dart';
 
 import '../profil/profilePage.dart';
@@ -22,7 +23,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
 
   static final List<Widget> _pages = [
     HomePage(),
-    AnnouncementListPage(), // Page de recherche
+    SearchPage(), // Page de recherche
     MessagePage(), // Page des messages
     ProfilePage(), // Page de profil
   ];
@@ -48,6 +49,7 @@ class _MainLayoutState extends ConsumerState<MainLayout> {
     var userLocal = ref.watch(LoginCtrlProvider);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: IndexedStack(index: _selectedIndex, children: _pages),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(

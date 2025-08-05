@@ -50,7 +50,7 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
 
     var url = Uri.parse(
       "${baseUrl}",
-    ).replace(path: 'api/announcements', queryParameters: queryParams);
+    ).replace(path: 'api/announcements/public', queryParameters: queryParams);
 
     var response = await httpUtils.getData(url.toString());
     var listData = jsonDecode(response);
@@ -63,7 +63,7 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
 
   @override
   Future<Announcement?> getAnnouncement(int id) async {
-    var url = '$baseUrl/announcements/${id}';
+    var url = '$baseUrl/announcement/public/single/${id}';
     var response = await httpUtils.getData(url);
     var data = jsonDecode(response);
     var announcement = Announcement.fromJson(data);
@@ -158,6 +158,29 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
         .toList();
   }
 
+  @override
+  Future<List<Announcement>> getFavoriteAnnouncement(String token) async{
+    var url = '$baseUrl/annoncements/favorites';
+    print(url);
+    var response = await httpUtils.getData(url,token: token);
+    var listData = jsonDecode(response);
+    var listAnnouncements = listData['data'];
+    return listAnnouncements
+        .map<Announcement>((e) => Announcement.fromJson(e))
+        .toList();
+  }
+
+  @override
+  Future<List<Announcement>> searchAnnouncements(String query) async{
+    var url = '$baseUrl/announcements/public?search=${query}';
+    print(url);
+    var response = await httpUtils.getData(url);
+    var listData = jsonDecode(response);
+    var listAnnouncements = listData['data'];
+    return listAnnouncements
+        .map<Announcement>((e) => Announcement.fromJson(e))
+        .toList();
+  }
 }
 
 void main() async {
@@ -165,16 +188,10 @@ void main() async {
     baseUrl: "http://localhost:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  try{
-    var auth = Authentication(email: "abc@gmail.com", password: "azertyuiop");
-    var user = await UserNetworkServiceImpl(baseUrl: "http://localhost:8000/api", httpUtils: LocalHttpUtils()).seConnecter(auth);
-    print(user?.token);
-    var announcements = await service.getAnnouncementByUser(user!.token!);
-    print("Les annonces de l'utilisateur : ${announcements}");
-  }on HttpClientRequest catch(e){
-    print("erreur : ${e.toString()}");
-  } catch(e){
-    print(e);
-  }
+  var auth = Authentication(email: "abc@gmail.com", password: "azertyuiop");
+  var user = await UserNetworkServiceImpl(baseUrl: "http://localhost:8000/api", httpUtils: LocalHttpUtils()).seConnecter(auth);
+  print(user!.token ?? "");
+  var favorites = await service.getFavoriteAnnouncement(user!.token ?? "");
+  print(favorites);
 
 }

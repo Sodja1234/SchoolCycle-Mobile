@@ -128,6 +128,7 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
   Widget build(BuildContext context) {
     var state = ref.watch(DetailAnnouncementProvider);
     print("ID ${widget.announcementId}");
+    var ctrl = ref.watch(DetailAnnouncementProvider.notifier);
 
     return Scaffold(
       backgroundColor: Color(0xFFFAFAFA),
@@ -187,6 +188,11 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
                         DetailAnnouncementWidget.infoSection(
                           state.announcement!,
                         ),
+
+                        // la carte avec la localisation
+                        DetailAnnouncementWidget.buildLocationSection(
+                          state.announcement!, 
+                          context),
 
                         // les informations du proprietaire
                         DetailAnnouncementWidget.ownerSection(

@@ -1,12 +1,17 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
+import 'package:odc_mobile_template/business/services/geolocation/geolocationService.dart';
 import 'package:odc_mobile_template/main.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementState.dart';
+
+import '../../business/models/announcement/announcement.dart';
 
 class DetailAnnouncementController extends StateNotifier<DetailAnnouncementState> {
   // Récupération du service d'annonces via GetIt (injection de dépendance)
   var announcementService = getIt.get<AnnouncementNetworkService>();
+  var geolocationService = getIt.get<GeolocationService>();
 
   DetailAnnouncementController() : super(DetailAnnouncementState()) {}
 
@@ -18,6 +23,12 @@ class DetailAnnouncementController extends StateNotifier<DetailAnnouncementState
       // Charge  l'annonce principale
       final announcement = await announcementService.getAnnouncement(id);
       print("l'annonce récuperé : ${announcement}");
+
+          // Géocodage automatique si l'adresse existe
+      if (announcement?.exchange_location_address?.isNotEmpty == true && 
+          announcement?.exchange_location_lat == null) {
+        await _geocodeAddress(announcement!.exchange_location_address!);
+      }
 
 
       // Récupère les annonces similaires (maximum 10) appartenant à la même catégorie
@@ -46,6 +57,33 @@ class DetailAnnouncementController extends StateNotifier<DetailAnnouncementState
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMsg: e.toString());
+    }
+  }
+
+  Future<void> _geocodeAddress(String address) async {
+    if (address.isEmpty || state.announcement == null) return;
+    state = state.copyWith(isLoading: true);
+    try {
+      final coordinates = await geolocationService.geocodeAddress(address);
+      if (coordinates == null) return;
+      final jsonData = state.announcement!.toJson();
+      final updatedJson = {
+        ...jsonData, // Spread operator pour copier toutes les valeurs existantes
+        'latitude': coordinates.latitude,
+        'longitude': coordinates.longitude,
+      };
+      final updatedAnnouncement = Announcement.fromJson(updatedJson);
+      state = state.copyWith(
+        announcement: updatedAnnouncement,
+        isLoading: false,
+      );
+    } catch (e, stackTrace) {
+      // 8. Gestion d'erreur détaillée
+      debugPrint('Erreur de géocodage: $e\n$stackTrace');
+      state = state.copyWith(
+        isLoading: false,
+        errorMsg: 'Échec du géocodage: ${e.toString()}',
+      );
     }
   }
 }
