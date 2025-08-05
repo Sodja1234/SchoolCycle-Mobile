@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
 import 'package:odc_mobile_template/pages/home/homeWidget.dart';
 import 'package:path/path.dart';
@@ -332,28 +334,6 @@ class DetailAnnouncementWidget {
                     ),
                   ),
                 ],
-              ),
-            ],
-          ),
-
-          SizedBox(height: 20,),
-
-          Row(
-            children:[
-              Icon(Icons.location_on_outlined, color: Colors.grey[600]),
-              SizedBox(width: 8),
-              Expanded(
-                // Prend tout l'espace disponible
-                child: Text(
-                  "${announcement.exchange_location_address}",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    height: 1.5,
-                  ),
-                  softWrap: true, // Retour à la ligne
-                  maxLines: 3, // Limite optionnelle
-                ),
               ),
             ],
           ),
@@ -806,5 +786,159 @@ class DetailAnnouncementWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Signalement envoyé avec succès')));
+  }
+
+ static Widget buildLocationSection(
+  Announcement announcement,
+  BuildContext context,
+  ) {
+    // Conversion sécurisée des coordonnées
+    final lat = double.tryParse(announcement.exchange_location_lat?.toString() ?? '');
+    final lng = double.tryParse(announcement.exchange_location_lng?.toString() ?? '');
+    final hasValidCoordinates = lat != null && lng != null;
+  
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // En-tête de localisation
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFF6B35).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFFFF6B35),
+                  size: 20,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Localisation',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      announcement.exchange_location_address ?? 'Adresse non spécifiée',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+  
+          // Carte (affichée directement si coordonnées valides)
+          if (hasValidCoordinates)
+            _buildMap(LatLng(lat, lng), context)
+          else
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.location_off_rounded, color: Colors.grey[400]),
+                    SizedBox(height: 8),
+                    Text(
+                      'Localisation non disponible',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+  
+  // Méthode pour construire la carte
+  static Widget _buildMap(LatLng location, BuildContext context) {
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: FlutterMap(
+          options: MapOptions(
+            initialCenter: location,
+            initialZoom: 15,
+            interactionOptions: InteractionOptions(
+              flags: InteractiveFlag.drag | 
+                    InteractiveFlag.pinchZoom | 
+                    InteractiveFlag.doubleTapZoom,
+            ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.app',
+            ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  width: 40,
+                  height: 40,
+                  point: location,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFF6B35),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                    child: Icon(Icons.location_on_rounded, 
+                      color: Colors.white, 
+                      size: 20),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
