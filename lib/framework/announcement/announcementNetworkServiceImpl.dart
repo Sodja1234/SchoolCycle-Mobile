@@ -158,7 +158,17 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
         .toList();
   }
 
-  
+  @override
+  Future<List<Announcement>> getFavoriteAnnouncement(String token) async{
+    var url = '$baseUrl/annoncements/favorites';
+    print(url);
+    var response = await httpUtils.getData(url,token: token);
+    var listData = jsonDecode(response);
+    var listAnnouncements = listData['data'];
+    return listAnnouncements
+        .map<Announcement>((e) => Announcement.fromJson(e))
+        .toList();
+  }
 
   @override
   Future<List<Announcement>> searchAnnouncements(String query) async{
