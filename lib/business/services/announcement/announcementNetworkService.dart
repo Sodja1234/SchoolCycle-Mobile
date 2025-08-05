@@ -6,4 +6,5 @@ abstract class AnnouncementNetworkService {
   Future<Announcement?> getAnnouncement(int id);
   Future<bool> createAnnouncement(CreateAnnouncement announcement,String? token);
   Future<List<Announcement>> getAnnouncementByUser(String token);
+  Future<List<Announcement>> searchAnnouncements(String query);
 }
