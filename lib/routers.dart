@@ -106,19 +106,20 @@ CONFIGURATION  DES ROUTES
     navigatorKey: navigatorKey,
     debugLogDiagnostics: true,
     initialLocation: "/public/intro",
-    redirect: (context, state) {
-      var appState = ref.watch(appCtrlProvider);
-      var user = appState.user;
+    redirect: (context, state) async{
+      final appState = ref.read(appCtrlProvider);
+      final isAuthInProgress = appState.user == null && appState.error == null;
 
-      // redirection vers la page d'accueil si l'utilisateur est connecté
-      if (user != null && state.matchedLocation.startsWith("/public")) {
-        return "/app/home";
+      // Attendez la fin du chargement initial
+      if (isAuthInProgress) {
+        await ref.read(appCtrlProvider.notifier).getUser();
       }
 
-      // redirection vers la page d'intro si l'utilisateur n'est pas connecté
-      /*if (user == null && state.matchedLocation.startsWith("/app")) {
-        return "/public/intro";
-      }*/
+      final user = ref.read(appCtrlProvider).user;
+
+      if (user != null && state.matchedLocation.startsWith("/public/auth")) {
+        return "/app/home"; // Redirige seulement les routes auth
+      }
 
       return null;
     },
