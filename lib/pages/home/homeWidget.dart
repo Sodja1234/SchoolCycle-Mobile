@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
+import 'package:odc_mobile_template/business/models/category/category.dart';
 import 'package:path/path.dart';
 
 class HomeWidgets {
@@ -81,67 +82,113 @@ class HomeWidgets {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: slide['gradient'],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: slide['gradient'][0].withOpacity(0.3),
-            blurRadius: 15,
-            offset: Offset(0, 8),
-          ),
-        ],
+        color: Colors.grey[300],
       ),
-      child: Stack(
-        // Cercle décoratif en arrière-plan
-        children: [
-          Positioned(
-            right: -20,
-            top: -20,
-            child: Container(
-              width: 120,
-              height: 120,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Stack(
+          fit: StackFit.expand,
+          // image de fond
+          children: [
+            // Image de fond avec gestion d'erreur
+            _buildSlideImage(slide['image']),
+            // Overlay sombre pour améliorer la lisibilité
+            Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  stops: [0.0, 0.5],
+                  colors: [
+                    Colors.black.withOpacity(0.35),
+                    Colors.transparent,
+                  ],
+                ),
               ),
             ),
-          ),
-           // Contenu principal de la diapositive
-          Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(slide['icon'], color: Colors.white, size: 40),
-                SizedBox(height: 16),
-                Text(
-                  slide['title'],
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+             // Contenu principal de la diapositive
+            Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(slide['icon'], color: Colors.white, size: 40),
+                  SizedBox(height: 16),
+                  Text(
+                    slide['title'],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  slide['subtitle'],
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                  SizedBox(height: 8),
+                  Text(
+                    slide['subtitle'],
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 4,
+                          offset: Offset(1, 1),
+                        ),
+                      ],
+
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  // Méthode helper pour construire l'image avec gestion d'erreur
+  static Widget _buildSlideImage(String? imagePath) {
+    if (imagePath == null || imagePath.isEmpty) {
+      return Container(
+        color: Colors.grey[300],
+        child: Center(
+          child: Icon(Icons.broken_image, size: 50, color: Colors.grey[500]),
+        ),
+      );
+    }
+
+    try {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey[300],
+            child: Center(
+              child: Icon(Icons.error, size: 50, color: Colors.grey[500]),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      return Container(
+        color: Colors.grey[300],
+        child: Center(
+          child: Icon(Icons.error, size: 50, color: Colors.grey[500]),
+        ),
+      );
+    }
   }
 
   // Petits points pour indiquer la position actuelle dans le carrousel
@@ -224,42 +271,70 @@ class HomeWidgets {
 
   // Carte affichant une catégorie (ex: Livres, Stylos, etc.)
   static Widget categoryCard({
-    required Map<String, dynamic> category,
+    required Category category,
     required Function() onTap,
   }) {
+    var baseUrl = dotenv.env["BASE_URL"] ?? "";
+    var imageUrl = baseUrl.endsWith("/api")
+        ? baseUrl.replaceFirst("/api", "/storage/")
+        : baseUrl;
+    String fullImageUrl = category.photo != null
+        ? "$imageUrl${category.photo}"
+        : "";
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8),
+        width: 80,
+        margin: EdgeInsets.symmetric(horizontal: 4),
         child: Column(
           children: [
             Container(
-              width: 75,
-              height: 75,
+              width: 70,
+              height: 70,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: category['gradient'],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Colors.grey[300]!, // Couleur de la bordure
+                  width: 1.3, // Épaisseur de la bordure
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: category['gradient'][0].withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
               ),
-              child: Icon(category['icon'], color: Colors.white, size: 32),
+              child: category.photo != null
+                  ? ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  fullImageUrl,
+                  fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: Colors.grey[200],
+                      child: Center(
+                        child: Icon(Icons.broken_image, color: Colors.grey[400]),
+                      ),
+                    ),
+                  loadingBuilder: (_, child, progress) {
+                    return progress == null
+                        ? child
+                        : _buildPlaceholder();
+                  },
+                ),
+              )
+                  : _buildPlaceholder(),
             ),
-            SizedBox(height: 8),
-            Text(
-              category['label'],
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[700],
+            SizedBox(height: 4),
+            Container(
+              width: 70,
+              child: Tooltip(
+                message: category.name,
+                child: Text(
+                  category?.name ?? "",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                  ),
+                  maxLines: 2, // Limite à une seule ligne
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
@@ -268,6 +343,11 @@ class HomeWidgets {
     );
   }
 
+  static Widget _buildPlaceholder() {
+    return Center(
+      child: Icon(Icons.category, color: Colors.grey[400], size: 30),
+    );
+  }
   // Carte affichant une annonce
   static Widget announcementCard({
     required Announcement announcement,
@@ -285,6 +365,9 @@ class HomeWidgets {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.all(8),
+        constraints: BoxConstraints(
+          minHeight: 300, // Hauteur minimale garantie
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           color: Colors.white,
@@ -299,9 +382,10 @@ class HomeWidgets {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              flex: 3,
+            Container(
+              height: 180,
               child: Stack(
                 children: [
                   ClipRRect(
