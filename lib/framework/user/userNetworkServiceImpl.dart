@@ -72,6 +72,24 @@ class UserNetworkServiceImpl extends UserNetworkService {
   }
 
   
+  @override
+  Future<Profile?> getProfileTutor(String token) async {
+    try {
+      var url = '$baseUrl/tutors/get';
+      var response = await httpUtils.getData(url, token: token);
+      if (response == null) return null;
+      var data = json.decode(response);
+      if (data['data'] == null) {
+        print('Structure de réponse inattendue: $data');
+        return null;
+      }
+      print(Profile.fromJson(data['data']));
+      return Profile.fromJson(data['data']);
+    } catch (e) {
+      print('Erreur getProfileTutor: $e');
+      return null;
+    }
+  }
 
   @override
   Future<void> updateUserPassword(PutPassword data,String token) async{

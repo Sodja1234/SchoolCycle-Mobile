@@ -14,4 +14,5 @@ abstract class UserNetworkService {
   Future<void> resendOtp(VerifyOtp resendOtp);
   Future<Profile?> getProfileTutor(String token);
   Future<void> updateUserPassword(PutPassword data,String token);
+  Future<void> savePreferences(List<int> categoryIds,String token);
 }
