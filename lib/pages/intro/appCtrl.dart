@@ -21,6 +21,15 @@ class AppCtrl  extends StateNotifier<AppState>{
     }
   }
 
+  Future<void> clearUser() async {
+    try {
+      await userLocalService.supprimerUser(); // supprime aussi localement
+      state = state.copyWith(user: null, error: null); // remet l’état utilisateur à null
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
   
 }
 
