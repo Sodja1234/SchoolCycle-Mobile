@@ -7,6 +7,9 @@ import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
 import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
 import 'package:odc_mobile_template/pages/createAnnouncement/createAnnouncementPage.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementPage.dart';
+import 'package:odc_mobile_template/pages/profils/changePassword/changePasswordPage.dart';
+import 'package:odc_mobile_template/pages/profils/editProfile/editProfilePage.dart';
+import 'package:odc_mobile_template/pages/profils/userPreference/userPreferencePage.dart';
 import 'package:odc_mobile_template/pages/widgets/mainLayout.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
@@ -97,6 +100,13 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         return AnnouncementListPage();
       },
     ),
+    GoRoute(
+      path: '/public/changePassword',
+      name: 'change_password',
+      builder: (ctx, state) {
+        return ChangePasswordPage();
+      },
+    ),
   ];
 
   /*
@@ -106,19 +116,20 @@ CONFIGURATION  DES ROUTES
     navigatorKey: navigatorKey,
     debugLogDiagnostics: true,
     initialLocation: "/public/intro",
-    redirect: (context, state) {
-      var appState = ref.watch(appCtrlProvider);
-      var user = appState.user;
+    redirect: (context, state) async{
+      final appState = ref.read(appCtrlProvider);
+      final isAuthInProgress = appState.user == null && appState.error == null;
 
-      // redirection vers la page d'accueil si l'utilisateur est connecté
-      if (user != null && state.matchedLocation.startsWith("/public")) {
-        return "/app/home";
+      // Attendez la fin du chargement initial
+      if (isAuthInProgress) {
+        await ref.read(appCtrlProvider.notifier).getUser();
       }
 
-      // redirection vers la page d'intro si l'utilisateur n'est pas connecté
-      /*if (user == null && state.matchedLocation.startsWith("/app")) {
-        return "/public/intro";
-      }*/
+      final user = ref.read(appCtrlProvider).user;
+
+      if (user != null && state.matchedLocation.startsWith("/public/auth")) {
+        return "/app/home"; // Redirige seulement les routes auth
+      }
 
       return null;
     },
