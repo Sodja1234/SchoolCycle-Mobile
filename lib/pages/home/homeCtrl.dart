@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
+import 'package:odc_mobile_template/business/services/category/categoryNetworkService.dart';
 import 'package:odc_mobile_template/main.dart';
 import 'package:odc_mobile_template/pages/home/homeState.dart';
 
 class Homectrl extends StateNotifier<Homestate> {
   var announcementService = getIt<AnnouncementNetworkService>();
+  var categoryService = getIt.get<CategoryNetworkService>();
 
   Homectrl() : super(Homestate()) {
     loadAnnouncements();
@@ -16,6 +18,7 @@ class Homectrl extends StateNotifier<Homestate> {
     await getAnnouncementsfilter('sale');
     await getAnnouncementsfilter("exchange");
     await getAnnouncementsfilter("don");
+    await getCategories();
   }
 
   Future<void> getAnnouncements() async {
@@ -59,6 +62,16 @@ class Homectrl extends StateNotifier<Homestate> {
         default:
           state = state.copyWith(errorMessage: "Une erreur est survenue");
       }
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+    }
+  }
+
+  Future<void> getCategories() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      var categories = await categoryService.getCategories();
+      state = state.copyWith(categories: categories, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
