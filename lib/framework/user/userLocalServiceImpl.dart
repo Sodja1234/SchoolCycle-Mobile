@@ -25,7 +25,7 @@ class UserLocalServiceImpl implements UserLocalService {
 
   @override
   Future<bool> supprimerUser() async {
-    await box?.deleteData("USER_KEY");
+    await box?.deleteData("user");
     return true;
   }
 }
