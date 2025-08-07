@@ -7,6 +7,9 @@ import 'package:odc_mobile_template/pages/auth/register/registerPage.dart';
 import 'package:odc_mobile_template/pages/auth/verifyOtp/verifyOtpPage.dart';
 import 'package:odc_mobile_template/pages/createAnnouncement/createAnnouncementPage.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementPage.dart';
+import 'package:odc_mobile_template/pages/profils/changePassword/changePasswordPage.dart';
+import 'package:odc_mobile_template/pages/profils/editProfile/editProfilePage.dart';
+import 'package:odc_mobile_template/pages/profils/userPreference/userPreferencePage.dart';
 import 'package:odc_mobile_template/pages/widgets/mainLayout.dart';
 import 'pages/404/not_found_page.dart';
 import 'pages/intro/appCtrl.dart';
@@ -95,6 +98,13 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       name: 'announcement_list',
       builder: (ctx, state) {
         return AnnouncementListPage();
+      },
+    ),
+    GoRoute(
+      path: '/public/changePassword',
+      name: 'change_password',
+      builder: (ctx, state) {
+        return ChangePasswordPage();
       },
     ),
   ];
