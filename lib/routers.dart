@@ -108,6 +108,13 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
       },
     ),
     GoRoute(
+      path: '/public/editProfile',
+      name: 'edit_profile',
+      builder: (ctx, state) {
+        return EditProfilePage();
+      },
+    ),
+    GoRoute(
       path: '/public/userPreference',
       name: 'user_preference',
       builder: (ctx, state) {
