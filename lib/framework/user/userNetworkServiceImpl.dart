@@ -1,6 +1,8 @@
 
 import 'dart:convert';
 
+import 'package:odc_mobile_template/business/models/user/profile.dart';
+import 'package:odc_mobile_template/business/models/user/putPassword.dart';
 import 'package:odc_mobile_template/business/models/user/registerUser.dart';
 import 'package:odc_mobile_template/business/models/user/verifyOtp.dart';
 
@@ -69,28 +71,38 @@ class UserNetworkServiceImpl extends UserNetworkService {
     return;
   }
 
+  
+
+  @override
+  Future<void> updateUserPassword(PutPassword data,String token) async{
+    var url = '$baseUrl/users/update-password';
+    var body = data.toJson();
+    var response = await httpUtils.putData(url,token: token,body: body);
+    return;
+  }
+
+  @override
+  Future<void> savePreferences(List<int> categoryIds,String token) async{
+    final url = '$baseUrl/preferences';
+    final body = {
+      'category_ids': categoryIds,
+    };
+    final response = await httpUtils.postData(url,token: token,body: body);
+    return;
+  }
+
 }
 
 void main() async {
   //test register
   var service = UserNetworkServiceImpl(
-    baseUrl: "http://10.20.20.140:8000/api",
+    baseUrl: "http://10.66.10.71:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  try{
-    var data=RegisterUser(name: "name", email: "email@gmail.com", password: "assword", passwordConfirmation: "password");
-    var r=await service.registerUser(data);
+  var auth = Authentication(email: "tutor@gmail.com", password: "azertyuiop");
+  var user = await UserNetworkServiceImpl(baseUrl: "http://10.66.10.71:8000/api", httpUtils: LocalHttpUtils()).seConnecter(auth);
+  var userPassword = PutPassword(old_password: "password", new_password: "azertyuiop", password_confirmation: "azertyuiop");
+  var category_ids = [69,70,71];
+  await service.savePreferences(category_ids,user?.token ?? "");
 
-  }catch(e, s){
-    print(e);
-    print(s);
-  }
-  /*var user = VerifyOtp(email: 'legigiiibabyyy@gmail.com');
-  try{
-    await service.resendOtp(user);
-  }on HttpRequestException catch(e){
-    print('errueur : ${e.body}');
-  }catch(e){
-    print('erreur : $e');
-  }*/
 }

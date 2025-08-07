@@ -107,6 +107,20 @@ final routerConfigProvider = Provider<GoRouter>((ref) {
         return ChangePasswordPage();
       },
     ),
+    GoRoute(
+      path: '/public/editProfile',
+      name: 'edit_profile',
+      builder: (ctx, state) {
+        return EditProfilePage();
+      },
+    ),
+    GoRoute(
+      path: '/public/userPreference',
+      name: 'user_preference',
+      builder: (ctx, state) {
+        return UserPreferencesPage();
+      },
+    ),
   ];
 
   /*
