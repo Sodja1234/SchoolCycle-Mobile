@@ -106,6 +106,16 @@ class LoginCtrl extends StateNotifier<LoginState> {
     );
   }
 
+  Future<void> supprimerUserLocal() async{
+    await local.supprimerUser();
+    state = state.copyWith(user: null);
+    state = LoginState(); // Réinitialisation complète
+    // Force un refresh des listeners
+    if (mounted) {
+      state = state.copyWith(user: null);
+    }
+  }
+
   durationToast(){
     Future.delayed(Duration(seconds: 3),(){
       resetMessages();
