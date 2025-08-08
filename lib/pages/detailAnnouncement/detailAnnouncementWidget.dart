@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
+import 'package:odc_mobile_template/business/models/announcement/report.dart';
+import 'package:odc_mobile_template/pages/annnouncementList/announcementListPage.dart';
+import 'package:odc_mobile_template/pages/auth/login/loginCtrl.dart';
+import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementController.dart';
 import 'package:odc_mobile_template/pages/home/homeWidget.dart';
 import 'package:path/path.dart';
 
@@ -829,59 +834,127 @@ class DetailAnnouncementWidget {
   }
 
   // message de signalement
-  static void showReportDialog(BuildContext context) {
-    final TextEditingController _reasonController = TextEditingController();
+    static void showReportDialog(
+    BuildContext context,
+    int announcementId,
+    bool alreadyReported,
+    WidgetRef ref,
+  ) {
+    // Liste des motifs de signalement (remplace la classe ReportReasons)
+    const List<String> reportReasons = [
+      "Contenu inapproprié",
+      "Information fausse",
+      "Article déjà vendu",
+      "Prix incorrect",
+      "Spam",
+      "Autre raison"
+    ];
+
+    final TextEditingController _detailsController = TextEditingController();
+    String? _selectedReason;
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('Signaler cette annonce'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Merci de préciser la raison du signalement :'),
-                SizedBox(height: 16),
-                TextField(
-                  controller: _reasonController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Décrivez le problème...',
-                    border: OutlineInputBorder(),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(alreadyReported 
+            ? "Signalement déjà effectué" 
+            : "Signaler cette annonce"),
+          content: alreadyReported
+            ? Text("Votre signalement est en cours de traitement.")
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Menu déroulant des motifs
+                  DropdownButtonFormField<String>(
+                    items: reportReasons.map((reason) {
+                      return DropdownMenuItem(
+                        value: reason,
+                        child: Text(reason),
+                      );
+                    }).toList(),
+                    onChanged: (value) => _selectedReason = value,
+                    decoration: InputDecoration(
+                      labelText: "Motif du signalement",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) => 
+                      value == null ? "Ce champ est requis" : null,
                   ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Annuler'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_reasonController.text.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Veuillez saisir une raison')),
-                    );
-                    return;
-                  }
 
-                  Navigator.pop(context);
-                  _submitReport(context, _reasonController.text);
-                },
-                child: Text('Envoyer'),
+                  SizedBox(height: 16),
+
+                  // Champ des détails
+                  TextFormField(
+                    controller: _detailsController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: "Détails supplémentaires",
+                      border: OutlineInputBorder(),
+                      hintText: "Décrivez le problème...",
+                    ),
+                  ),
+                ],
               ),
-            ],
+          actions: [
+          TextButton(
+            onPressed: Navigator.of(context).pop,
+            child: Text("Annuler"),
           ),
-    );
-  }
+          if (!alreadyReported)
+            ElevatedButton(
+              onPressed: () async {
+                if (_selectedReason == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Veuillez sélectionner un motif")),
+                  );
+                  return;
+                }
 
-  static void _submitReport(BuildContext context, String reason) {
-    // Implémentez l'envoi du signalement ici
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Signalement envoyé avec succès')));
+                // Appel au contrôleur pour envoyer le signalement
+                final user = ref.read(LoginCtrlProvider).user;
+                if (user?.token == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Vous devez être connecté")),
+                  );
+                  return;
+                }
+
+                final reportData = Report(
+                  announcement_id: announcementId,
+                  motif: _selectedReason!,
+                  detail: _detailsController.text,
+                  user_id: user?.id ?? 0,
+                );
+
+                final success = await ref
+                    .read(DetailAnnouncementProvider.notifier)
+                    .reportAnnouncement(reportData, user?.token ?? "");
+
+                if (success) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Signalement envoyé !"),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Échec de l'envoi"),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: Text("Signaler"),
+            ),
+          ]
+        );
+      },
+    );
   }
 
  static Widget buildLocationSection(

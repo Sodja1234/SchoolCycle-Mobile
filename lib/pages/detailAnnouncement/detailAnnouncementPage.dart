@@ -217,6 +217,9 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
 
                           () => DetailAnnouncementWidget.showReportDialog(
                             context,
+                            state.announcement!.id,
+                            state.alreadyReported,
+                            ref
                           ),
                           isUserLoggedIn,
                           isOwner
