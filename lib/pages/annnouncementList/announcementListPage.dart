@@ -10,11 +10,11 @@ import 'package:odc_mobile_template/pages/annnouncementList/announcementListStat
 import 'package:odc_mobile_template/utils/navigationUtils.dart';
 
 class AnnouncementListPage extends ConsumerStatefulWidget {
-  final String? type;
+  final String? operation_type;
 
   const AnnouncementListPage({
     Key? key,
-    this.type,
+    this.operation_type,
   }) : super(key: key);
 
   @override
@@ -33,7 +33,7 @@ class _AnnouncementListPageState extends ConsumerState<AnnouncementListPage> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.type ?? 'all';
+    _selectedType = widget.operation_type ?? 'all';
     _scrollController.addListener(_scrollListener);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -176,6 +176,7 @@ class _AnnouncementListPageState extends ConsumerState<AnnouncementListPage> {
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -289,21 +290,6 @@ class _AnnouncementListPageState extends ConsumerState<AnnouncementListPage> {
                           ),
                         ),
                       ),
-                      if (announcement.operation_type == 'sale' && announcement.price != null)
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Color(0xFFFF6B35).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${announcement.price} Fc',
-                            style: TextStyle(
-                              color: Color(0xFFFF6B35),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                     ],
                   ),
 
@@ -339,13 +325,9 @@ class _AnnouncementListPageState extends ConsumerState<AnnouncementListPage> {
                     children: [
                       Expanded(
                         child: Text(
-                          announcement.operation_type == "sale"
-                              ? "Vente"
-                              : announcement.operation_type == "exchange"
-                              ? "Échange"
-                              : announcement.operation_type == "don"
-                              ? "Don"
-                              : "Autre",
+                          announcement.price != null
+                              ? '${announcement.price} Fc'
+                              : 'Gratuit',
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.orange,

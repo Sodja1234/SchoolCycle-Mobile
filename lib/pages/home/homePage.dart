@@ -222,7 +222,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               child: HomeWidgets.categoryCard(
                                 category: categories[index],
                                 onTap: () {
-                                  print("Categorie cliqué ${categories[index].photo}");
+                                  navigation.navigate("/public/announcementList");
                                 },
                               ),
                             ),
@@ -304,10 +304,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       width: cardWidth,
                       margin: EdgeInsets.only(right: 16),
                       child: HomeWidgets.announcementCard(
-                        announcement: state.announcements![index],
+                        announcement: state.suggestedAnnouncements![index],
                         onTap: () {
                           navigation.navigate(
-                            '/public/detail_announcement/${state.announcements![index].id}',
+                            '/public/detail_announcement/${state.suggestedAnnouncements![index].id}',
                           );
                         },
                         onFavoriteTap: () {
