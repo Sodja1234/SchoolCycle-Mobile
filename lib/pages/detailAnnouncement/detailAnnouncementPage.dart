@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
 import 'package:odc_mobile_template/main.dart';
+import 'package:odc_mobile_template/pages/auth/login/loginCtrl.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementController.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementWidget.dart';
 import 'package:odc_mobile_template/utils/navigationUtils.dart';
@@ -47,7 +48,8 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
     // Charger l'article au lancement de la page
     // Charge les données de l'annonce de manière asynchrone
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(DetailAnnouncementProvider.notifier)
+      ref
+          .read(DetailAnnouncementProvider.notifier)
           .loadAnnouncementData(widget.announcementId);
     });
   }
@@ -85,7 +87,6 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
     super.dispose();
   }
 
-
   // la meethode permettant de partager l'annonce
   void _shareAnnouncement(Announcement announcement) async {
     try {
@@ -93,9 +94,9 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
 
       await Share.share(
         'Découvrez cette annonce sur SchoolCycle:\n\n'
-            '📌 ${announcement.title}\n\n'
-            '📝 ${announcement.description ?? "Pas de description"}\n\n'
-            '💰 Prix: ${announcement.price != null ? "${announcement.price} Fc" : "Gratuit"}',
+        '📌 ${announcement.title}\n\n'
+        '📝 ${announcement.description ?? "Pas de description"}\n\n'
+        '💰 Prix: ${announcement.price != null ? "${announcement.price} Fc" : "Gratuit"}',
         subject: 'Annonce SchoolCycle - ${announcement.title}',
         sharePositionOrigin: box!.localToGlobal(Offset.zero) & box!.size,
       );
@@ -129,6 +130,9 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
     var state = ref.watch(DetailAnnouncementProvider);
     print("ID ${widget.announcementId}");
     var ctrl = ref.watch(DetailAnnouncementProvider.notifier);
+    var user = ref.watch(LoginCtrlProvider).user;
+    final isUserLoggedIn = user != null;
+    bool isOwner = state.announcement?.created_by?.id == user?.id;
 
     return Scaffold(
       backgroundColor: Color(0xFFFAFAFA),
@@ -181,6 +185,7 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
                               _isFavorite = !_isFavorite;
                             });
                           },
+                          isUserLoggedIn
                         ),
                         SizedBox(height: 16),
 
@@ -191,8 +196,9 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
 
                         // la carte avec la localisation
                         DetailAnnouncementWidget.buildLocationSection(
-                          state.announcement!, 
-                          context),
+                          state.announcement!,
+                          context,
+                        ),
 
                         // les informations du proprietaire
                         DetailAnnouncementWidget.ownerSection(
@@ -204,16 +210,16 @@ class _DetailAnnouncementPageState extends ConsumerState<DetailAnnouncementPage>
                           context,
 
                           () => DetailAnnouncementWidget.showMessageDialog(
-                            context,
+                            context,state.announcement!
                           ),
 
-                          () => {
-                            _shareAnnouncement(state.announcement!)
-                          },
+                          () => {_shareAnnouncement(state.announcement!)},
 
                           () => DetailAnnouncementWidget.showReportDialog(
                             context,
                           ),
+                          isUserLoggedIn,
+                          isOwner
                         ),
 
                         // Les annonces simulaires

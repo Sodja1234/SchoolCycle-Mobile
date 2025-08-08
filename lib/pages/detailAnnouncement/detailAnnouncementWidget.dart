@@ -16,7 +16,8 @@ class DetailAnnouncementWidget {
     int selectedImageIndex,
     Function(int) onImageSelected,
     bool isFavorite,
-    Function() onFavoriteTap,
+    Function()? onFavoriteTap,
+    bool isUserLoggedIn,
   ) {
     // URL de base pour les images, récupérée depuis les variables d'environnement
     var baseUrl = dotenv.env["BASE_URL"] ?? "";
@@ -114,32 +115,34 @@ class DetailAnnouncementWidget {
                     ),
                   ),
                   // Bouton favori
-                  Positioned(
-                    top: 16,
-                    right: 16,
-                    child: GestureDetector(
-                      onTap: onFavoriteTap,
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: Colors.red,
-                          size: 24,
+                  if (isUserLoggedIn)
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: GestureDetector(
+                        onTap: onFavoriteTap,
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: Colors.red,
+                            size: 24,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  
                   // Indicateur d'image
                   Positioned(
                     bottom: 16,
@@ -472,6 +475,8 @@ class DetailAnnouncementWidget {
     Function() onMessageTap,
     Function() onShareTap,
     Function() onReportTap,
+    bool isUserLoggedIn,
+    bool isOwner,
   ) {
     return Container(
       margin: EdgeInsets.all(16),
@@ -480,87 +485,89 @@ class DetailAnnouncementWidget {
           // Boutons principaux
           Row(
             children: [
-              Expanded(
-                flex: 2,
-                child: ElevatedButton(
-                  onPressed: onMessageTap,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: Ink(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFFF7300), Color(0xFFFF9000)],
+              if (isUserLoggedIn && !isOwner)
+                Expanded(
+                  flex: 2,
+                  child: ElevatedButton(
+                    onPressed: onMessageTap,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 12),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.message_rounded, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'Envoyer un message',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFFFF7300), Color(0xFFFF9000)],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.symmetric(vertical: 12),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.message_rounded, color: Colors.white),
+                              SizedBox(width: 8),
+                              Text(
+                                'Envoyer un message',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(width: 12),
+              if (isUserLoggedIn && !isOwner) SizedBox(width: 12),
               // Bouton partager
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  onPressed: onShareTap,
-                  icon: Icon(Icons.share_rounded, color: Color(0xFFFF9000)),
-                  iconSize: 24,
+              Expanded(
+                flex: isUserLoggedIn && !isOwner ? 0 : 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    onPressed: onShareTap,
+                    icon: Icon(Icons.share_rounded, color: Color(0xFFFF9000)),
+                    iconSize: 24,
+                  ),
                 ),
               ),
             ],
-          ),
-
-          SizedBox(height: 12),
-
+          ),          
           // Bouton signaler
-          TextButton.icon(
-            onPressed: onReportTap,
-            icon: Icon(Icons.flag_rounded, color: const Color(0xFFFF9000), size: 20),
-            label: Text(
-              'Signaler cette annonce',
-              style: TextStyle(
-                color: const Color(0xFFFF9000),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+          if (isUserLoggedIn && !isOwner)
+            TextButton.icon(
+              onPressed: onReportTap,
+              icon: Icon(Icons.flag_rounded, color: const Color(0xFFFF9000), size: 20),
+              label: Text(
+                'Signaler cette annonce',
+                style: TextStyle(
+                  color: const Color(0xFFFF9000),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -641,95 +648,184 @@ class DetailAnnouncementWidget {
   }
 
   // le message
-  static void showMessageDialog(BuildContext context) {
+  static void showMessageDialog(BuildContext context,Announcement announcement) {
+    final TextEditingController _messageController = TextEditingController();
+    String? _selectedQuestion;
+    final double maxChipWidth = MediaQuery.of(context).size.width * 0.8;
+    final List<String> predefinedQuestions = [
+      "Bonjour ! quel est votre meilleur prix ?",
+     "Où exactement est localisé l'article ?",
+      "Bonjour, l'article est toujour disponible ?"
+    ];
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
+      builder: (context) => Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Envoyer un message',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Expanded(
-                    child: TextField(
-                      maxLines: null,
-                      expands: true,
-                      decoration: InputDecoration(
-                        hintText: 'Tapez votre message ici...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: Color(0xFFFF6B35)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Message envoyé !'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFDF6C0E),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: Text(
-                        'Envoyer',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              Text(
+                'Contacter le vendeur',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+
+              SizedBox(height: 16),
+
+              // Questions prédéfinies
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.start,
+                children: predefinedQuestions.map((question) {
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: maxChipWidth, // Empêche les chips trop larges
+                    ),
+                    child: ChoiceChip(
+                      label: Text(question),
+                      selected: _selectedQuestion == question,
+                      onSelected: (selected) {
+                        _selectedQuestion = selected ? question : null;
+                        _messageController.text = _selectedQuestion ?? '';
+                      },
+                      selectedColor: Color(0xFFFF6B35).withOpacity(0.2),
+                      labelStyle: TextStyle(
+                        color: _selectedQuestion == question 
+                          ? Color(0xFFFF6B35) 
+                          : Colors.black54,
+                      ),
+                      backgroundColor: Colors.grey[100],
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              SizedBox(height: 20),
+
+              // Champ de message
+              TextField(
+                controller: _messageController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  hintText: 'Écrivez votre message...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Color(0xFFFF6B35),
+                      width: 1,
+                    ),
+                  ),
+                  contentPadding: EdgeInsets.all(16),
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              // Bouton d'envoi
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final message = _messageController.text.trim();
+                    if (message.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Veuillez écrire un message')),
+                      );
+                      return;
+                    }
+
+                    // Envoyer le message
+                    sendMessageToSeller(
+                      context,
+                      announcement.id, 
+                      message,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFFFF6B35),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Envoyer le message',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
     );
+  }
+
+  static void sendMessageToSeller(
+  BuildContext context, 
+  int announcementId, 
+  String message
+  ) async {
+      try {
+
+        // implementation de l'envoi du message
+        
+        Navigator.pop(context);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Message envoyé avec succès'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'envoi'),
+            backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   // message de signalement
