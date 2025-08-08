@@ -1,5 +1,6 @@
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
 import 'package:odc_mobile_template/business/models/announcement/createAnnouncement.dart';
+import 'package:odc_mobile_template/business/models/announcement/report.dart';
 
 abstract class AnnouncementNetworkService {
   Future<List<Announcement>> getAnnouncements({List<String>? operationTypes,double? price,List<String>? states,List<String>? categories});
@@ -8,4 +9,5 @@ abstract class AnnouncementNetworkService {
   Future<List<Announcement>> getAnnouncementByUser(String token);
   Future<List<Announcement>> getFavoriteAnnouncement(String token);
   Future<List<Announcement>> searchAnnouncements(String query);
+  Future<void> reportAnnouncement(Report data,String token);
 }
