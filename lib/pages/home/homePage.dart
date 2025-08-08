@@ -33,6 +33,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     // Lance le timer pour le défilement automatique du carrousel
     _startSliderTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeCtrlProvider.notifier).getCategories();
+    });
   }
 
   void _initAnimations() {
@@ -92,66 +95,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
-  // Définition des éléments de la barre de navigation inférieure
-  static List<Map<String, dynamic>> _items = [
-    {'icon': Icons.home_outlined, 'label': 'Accueil'},
-    {'icon': Icons.search_outlined, 'label': 'Recherche'},
-    {'icon': Icons.chat_bubble_outline, 'label': 'Messages'},
-    {'icon': Icons.person_outlined, 'label': 'Profil'},
-  ];
-
-  // Liste des catégories affichées sous forme de cartes
-  static List<Map<String, dynamic>> _categories = [
-    {
-      'icon': Icons.menu_book_rounded,
-      'label': 'Livres',
-      'gradient': [Color(0xFF667eea), Color(0xFF764ba2)],
-    },
-    {
-      'icon': Icons.edit_rounded,
-      'label': 'Stylos',
-      'gradient': [Color(0xFF11998e), Color(0xFF38ef7d)],
-    },
-    {
-      'icon': Icons.school_rounded,
-      'label': 'Cartables',
-      'gradient': [Color(0xFFf093fb), Color(0xFFf5576c)],
-    },
-    {
-      'icon': Icons.straighten_rounded,
-      'label': 'Règles',
-      'gradient': [Color(0xFF4facfe), Color(0xFF00f2fe)],
-    },
-    {
-      'icon': Icons.palette_rounded,
-      'label': 'Crayons',
-      'gradient': [Color(0xFFfa709a), Color(0xFFfee140)],
-    },
-    {
-      'icon': Icons.backpack_rounded,
-      'label': "Sac à dos",
-      'gradient': [Color(0xFFa8edea), Color(0xFFfed6e3)],
-    },
-  ];
-
   // Slides du carrousel principal (bannières promotionnelles)
   static List<Map<String, dynamic>> _slides = [
     {
       'title': 'Rentrée Scolaire',
       'subtitle': "Jusqu'à -50% sur les fournitures",
-      'gradient': [Color(0xFF667eea), Color(0xFF764ba2)],
+      'image': "assets/image1.jpg",
       'icon': Icons.school_rounded,
     },
     {
       'title': 'Échange Gratuit',
       'subtitle': 'Trouvez ce dont vous avez besoin',
-      'gradient': [Color(0xFF11998e), Color(0xFF38ef7d)],
+      'image': "assets/image2.jpg",
       'icon': Icons.swap_horiz_rounded,
     },
     {
       'title': 'Dons Solidaires',
       'subtitle': 'Aidez la communauté étudiante',
-      'gradient': [Color(0xFFf093fb), Color(0xFFf5576c)],
+      'image': "assets/image3.jpg",
       'icon': Icons.favorite_rounded,
     },
   ];
@@ -174,9 +135,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     double horizontalPadding = (screenWidth - cardWidth) / 2;
 
     final state = ref.watch(homeCtrlProvider);
-    // print("La liste d'annonce : ${state.announcements}");
     final ctrl = ref.read(homeCtrlProvider.notifier);
     final userLocal = ref.watch(LoginCtrlProvider);
+    final categories = state.categories ?? [];
 
     print(
        "État de connexion: ${userLocal.user != null ? 'Connecté' : 'Non connecté'}",
@@ -231,35 +192,50 @@ class _HomePageState extends ConsumerState<HomePage> {
 
             // Section catégories
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Catégories',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.grey[800],
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Catégories',
+                      style: TextStyle(
+                        fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[800],
+                      ),
                 ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              height: 110,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  return HomeWidgets.categoryCard(
-                    category: _categories[index],
-                    onTap: () {
-                      // redirection vers la pages announceByCategory
-                    },
-                  );
-                },
-              ),
-            ),
-
-            SizedBox(height: 32),
+                SizedBox(height: 16),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final cardWidth = constraints.maxWidth / 4; // Largeur pour 4 cartes visibles
+                    return SizedBox(
+                      height: 110, // Hauteur fixe pour la zone
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: categories.length,
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return SizedBox(
+                            width: cardWidth, // Largeur calculée dynamiquement
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 8), // Espace entre les cartes
+                              child: HomeWidgets.categoryCard(
+                                category: categories[index],
+                                onTap: () {
+                                  print("Categorie cliqué ${categories[index].photo}");
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),      
+          ]
+        )
+      ),
+            SizedBox(height: 20),
 
             // Annonces récentes
             HomeWidgets.titreSection(
@@ -351,7 +327,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               title: 'Ventes de Fournitures',
               subtitle: 'Les meilleures offres à petits prix',
               onSeeAll: () {
-                navigation.navigate("/public/announcementList");
+                navigation.navigate("/public/announcementList?operation_type=sale");
               },
             ),
 
@@ -390,7 +366,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               title: 'Échanges Possibles',
               subtitle: 'Trouvez des personnes pour échanger sans argent',
               onSeeAll: () {
-                navigation.navigate("/public/announcementList");
+                navigation.navigate("/public/announcementList?operation_type=exchange");
               },
             ),
 
@@ -428,7 +404,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               title: 'Dons Possibles',
               subtitle: 'Des fournitures offertes par la communauté',
               onSeeAll: () {
-                navigation.navigate("/public/announcementList");
+                navigation.navigate("/public/announcementList?operation_type=don");
               },
             ),
 

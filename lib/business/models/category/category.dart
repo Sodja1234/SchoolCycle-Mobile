@@ -4,16 +4,16 @@ class Category {
   final int id;
   final String? name;
   final String? description;
-  final Photo? image;
+  final String? photo;
 
-  Category({required this.id, this.name, this.description, this.image});
+  Category({required this.id, this.name, this.description, this.photo});
 
   factory Category.fromJson(json) => Category(
     id: json['id'],
     name: json['name'],
     description: json['description'],
-    image: json['image']
+    photo: json['photo']
   );
 
-  Map toJson() => {'id': id, 'name': name, 'description': description,'image' : image};
+  Map toJson() => {'id': id, 'name': name, 'description': description,'photo' : photo};
 }
