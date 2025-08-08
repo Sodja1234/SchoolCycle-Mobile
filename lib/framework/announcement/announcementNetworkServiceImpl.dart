@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:odc_mobile_template/business/models/announcement/announcement.dart';
 import 'package:odc_mobile_template/business/models/announcement/createAnnouncement.dart';
+import 'package:odc_mobile_template/business/models/announcement/report.dart';
 import 'package:odc_mobile_template/business/models/user/authentication.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
 import 'package:odc_mobile_template/framework/user/userNetworkServiceImpl.dart';
@@ -181,6 +182,14 @@ class AnnouncementNetworkServiceImpl implements AnnouncementNetworkService {
         .map<Announcement>((e) => Announcement.fromJson(e))
         .toList();
   }
+
+  @override
+  Future<void> reportAnnouncement(Report data,String token) async{
+    var url = '$baseUrl/reports';
+    var body = data.toJson();
+    var response = await httpUtils.postData(url,token: token,body: body);
+    return;
+  }
 }
 
 void main() async {
@@ -188,10 +197,8 @@ void main() async {
     baseUrl: "http://localhost:8000/api",
     httpUtils: LocalHttpUtils(),
   );
-  var auth = Authentication(email: "abc@gmail.com", password: "azertyuiop");
+  var auth = Authentication(email: "abc@gmail.com", password: "password");
   var user = await UserNetworkServiceImpl(baseUrl: "http://localhost:8000/api", httpUtils: LocalHttpUtils()).seConnecter(auth);
-  print(user!.token ?? "");
-  var favorites = await service.getFavoriteAnnouncement(user!.token ?? "");
-  print(favorites);
-
+  var data = Report(announcement_id: 54, user_id: user?.id ?? 0, detail: "qdsjkqdf", motif: "motif");
+  await service.reportAnnouncement(data, user?.token ?? "");
 }
