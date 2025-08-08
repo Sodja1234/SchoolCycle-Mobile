@@ -1,35 +1,37 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:odc_mobile_template/business/models/announcement/report.dart';
 import 'package:odc_mobile_template/business/services/announcement/announcementNetworkService.dart';
 import 'package:odc_mobile_template/business/services/geolocation/geolocationService.dart';
+import 'package:odc_mobile_template/business/services/user/userNetworkService.dart';
 import 'package:odc_mobile_template/main.dart';
 import 'package:odc_mobile_template/pages/detailAnnouncement/detailAnnouncementState.dart';
 
 import '../../business/models/announcement/announcement.dart';
 
-class DetailAnnouncementController extends StateNotifier<DetailAnnouncementState> {
+class DetailAnnouncementController
+    extends StateNotifier<DetailAnnouncementState> {
   // Récupération du service d'annonces via GetIt (injection de dépendance)
   var announcementService = getIt.get<AnnouncementNetworkService>();
   var geolocationService = getIt.get<GeolocationService>();
+  var userService = getIt.get<UserNetworkService>();
 
   DetailAnnouncementController() : super(DetailAnnouncementState()) {}
 
   Future<void> loadAnnouncementData(int id) async {
     state = state.copyWith(isLoading: true);
     try {
-
       state = state.copyWith(isLoading: true);
       // Charge  l'annonce principale
       final announcement = await announcementService.getAnnouncement(id);
       print("l'annonce récuperé : ${announcement}");
 
-          // Géocodage automatique si l'adresse existe
-      if (announcement?.exchange_location_address?.isNotEmpty == true && 
+      // Géocodage automatique si l'adresse existe
+      if (announcement?.exchange_location_address?.isNotEmpty == true &&
           announcement?.exchange_location_lat == null) {
         await _geocodeAddress(announcement!.exchange_location_address!);
       }
-
 
       // Récupère les annonces similaires (maximum 10) appartenant à la même catégorie
       // Si moins de 10 annonces sont disponibles, retourne toutes celles trouvées
@@ -84,6 +86,18 @@ class DetailAnnouncementController extends StateNotifier<DetailAnnouncementState
         isLoading: false,
         errorMsg: 'Échec du géocodage: ${e.toString()}',
       );
+    }
+  }
+
+  Future<bool> reportAnnouncement(Report data,String token) async{
+    state = state.copyWith(isLoading: true);
+    try {
+      await announcementService.reportAnnouncement(data, token);
+      state = state.copyWith(isLoading: false, alreadyReported: true);
+      return true;
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMsg: e.toString());
+      return false;
     }
   }
 }
